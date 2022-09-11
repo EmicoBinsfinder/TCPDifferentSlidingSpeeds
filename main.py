@@ -21,23 +21,23 @@ from mpl_toolkits import mplot3d as Axes3D
 from HelperFunctions import plot_shear_stress_vs_normal_stress, plot_variation_in_mu
 from HelperFunctions import get_dissociation_rates
 
-Temperatures = ["400K", "500K", "600K", "700K"]
-Pressures = ['2GPa', '3GPa', '4GPa', '5GPa']
+Speeds = ["1ms", "20ms", "30ms", "40ms", "50ms"]
+Pressures = ["2GPa", "3GPa", "4GPa", "5GPa"]
 
-
-#
 ########## Getting Formatted Dataframes to Perform Analysis On ########################
-Big_Dataframe_300K = get_intact_columns_constant_temperature("300K", Pressures)
-Big_Dataframe_400K = get_intact_columns_constant_temperature("400K", Pressures)
-Big_Dataframe_500K = get_intact_columns_constant_temperature("500K", Pressures)
-Big_Dataframe_600K = get_intact_columns_constant_temperature("600K", Pressures)
-Big_Dataframe_700K = get_intact_columns_constant_temperature("700K", Pressures)
+Big_Dataframe_1ms = get_intact_columns_constant_temperature("1ms", Pressures)
+#Big_Dataframe_10ms = get_intact_columns_constant_temperature("10ms", Pressures)
+Big_Dataframe_20ms = get_intact_columns_constant_temperature("20ms", Pressures)
+#Big_Dataframe_30ms = get_intact_columns_constant_temperature("30ms", Pressures)
+Big_Dataframe_40ms = get_intact_columns_constant_temperature("40ms", Pressures)
+Big_Dataframe_50ms = get_intact_columns_constant_temperature("50ms", Pressures)
 
-Big_Dataframe_1GPa = get_intact_columns_constant_pressure('1GPa', Temperatures)
-Big_Dataframe_2GPa = get_intact_columns_constant_pressure('2GPa', Temperatures)
-Big_Dataframe_3GPa = get_intact_columns_constant_pressure('3GPa', Temperatures)
-Big_Dataframe_4GPa = get_intact_columns_constant_pressure('4GPa', Temperatures)
-Big_Dataframe_5GPa = get_intact_columns_constant_pressure('5GPa', Temperatures)
+
+Big_Dataframe_1GPa = get_intact_columns_constant_pressure('1GPa', Speeds)
+Big_Dataframe_2GPa = get_intact_columns_constant_pressure('2GPa', Speeds)
+Big_Dataframe_3GPa = get_intact_columns_constant_pressure('3GPa', Speeds)
+Big_Dataframe_4GPa = get_intact_columns_constant_pressure('4GPa', Speeds)
+Big_Dataframe_5GPa = get_intact_columns_constant_pressure('5GPa', Speeds)
 
 Big_Dataframe_1GPa.to_csv('C:/Users/eeo21/Documents/PhD/TCPDecompositionExperiments/Completed/AlphaFe/OneGPaComparison.csv')
 Big_Dataframe_2GPa.to_csv('C:/Users/eeo21/Documents/PhD/TCPDecompositionExperiments/Completed/AlphaFe/TwoGPaComparison.csv')
