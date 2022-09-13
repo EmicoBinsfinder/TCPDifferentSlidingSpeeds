@@ -26,7 +26,7 @@ Pressures = ['3GPa', '4GPa', '5GPa']
 speed = "1ms"
 pressures = ['3GPa', '4GPa', '5GPa']
 
-def get_intact_columns_constant_temperature(Temperature, Pressures):
+def get_intact_columns_constant_speed(Speed, Pressures):
 
     """
     speed: Speed directory that you ran the experiments at
@@ -35,8 +35,8 @@ def get_intact_columns_constant_temperature(Temperature, Pressures):
     """
 
     #Makes a dataframe from the intact molecuels csv of the first speed/temperature/pressure experiment in your defined list
-    All_Dataframe = pd.read_csv('C:/Users/eeo21/Documents/PhD/TCPDecompositionExperiments/Completed/AlphaFe/{}/1GPa/'
-                                'processed/Fe2O3-200-iso-octane_IntactMols_0.3'.format(Temperature), sep='\t')
+    All_Dataframe = pd.read_csv('D:/PhD/TCPDecompositionExperiments/Completed/DifferentSlidingSpeeds/1ms/400K/1GPa/'
+                                'processed/Fe2O3-200-iso-octane_IntactMols_0.3'.format(Speed), sep='\t')
 
     #Take the correct columns from the above datafram using iloc
     Big_Dataframe_NotProcessed = All_Dataframe.iloc[:, [0, 2]]
@@ -48,8 +48,8 @@ def get_intact_columns_constant_temperature(Temperature, Pressures):
 
     Pressures = Pressures
     for P in Pressures:
-        Dataframe = pd.read_csv('C:/Users/eeo21/Documents/PhD/TCPDecompositionExperiments/Completed/AlphaFe/{}/{}/'
-                                'processed/Fe2O3-200-iso-octane_IntactMols_0.3'.format(Temperature, P), sep='\t')
+        Dataframe = pd.read_csv('D:/PhD/TCPDecompositionExperiments/Completed/DifferentSlidingSpeeds/{}/400K/{}/'
+                                'processed/Fe2O3-200-iso-octane_IntactMols_0.3'.format(Speed, P), sep='\t')
         UnnamedBig_DataframeP = Dataframe.iloc[:, [0, 2]]
         #print(Big_DataframeP)
         Big_DataframeP = UnnamedBig_DataframeP.rename(columns= {'Timestep' : 'Timestep_{}'.format(P),
@@ -61,7 +61,7 @@ def get_intact_columns_constant_temperature(Temperature, Pressures):
 
     return Big_Dataframe
 
-def get_intact_columns_constant_pressure(Pressure, Temperatures):
+def get_intact_columns_constant_pressure(Pressure, Speeds):
 
     """
     speed: Speed directory that you ran the experiments at
@@ -70,24 +70,24 @@ def get_intact_columns_constant_pressure(Pressure, Temperatures):
     """
 
     # Makes a dataframe from the intact molecuels csv of the first speed/temperature/pressure experiment in your defined list
-    All_Dataframe = pd.read_csv('C:/Users/eeo21/Documents/PhD/TCPDecompositionExperiments/Completed/AlphaFe/300K/{}/'
+    All_Dataframe = pd.read_csv('D:/PhD/TCPDecompositionExperiments/Completed/DifferentSlidingSpeeds/1ms/400K/1GPa/'
                                 'processed/Fe2O3-200-iso-octane_IntactMols_0.3'.format(Pressure), sep='\t')
 
     # Take the correct columns from the above datafram using iloc
     Big_Dataframe_NotProcessed = All_Dataframe.iloc[:, [0, 2]]
 
     # Rename the column to the pressure of the first experiment
-    Big_Dataframe = Big_Dataframe_NotProcessed.rename(columns={'Intact_molecules_noomit': '300K'})
+    Big_Dataframe = Big_Dataframe_NotProcessed.rename(columns={'Intact_molecules_noomit': '1ms'})
 
     # Quick for loop to get the rest of the columns from the remaining
 
-    for T in Temperatures:
-        Dataframe = pd.read_csv('C:/Users/eeo21/Documents/PhD/TCPDecompositionExperiments/Completed/AlphaFe/{}/{}/'
-                                'processed/Fe2O3-200-iso-octane_IntactMols_0.3'.format(T, Pressure), sep='\t')
+    for S in Speeds:
+        Dataframe = pd.read_csv('D:/PhD/TCPDecompositionExperiments/Completed/DifferentSlidingSpeeds/{}/400K/{}/'
+                                'processed/Fe2O3-200-iso-octane_IntactMols_0.3'.format(S, Pressure), sep='\t')
         UnnamedBig_DataframeP = Dataframe.iloc[:, [0, 2]]
         # print(Big_DataframeP)
-        Big_DataframeP = UnnamedBig_DataframeP.rename(columns={'Timestep': 'Timestep_{}'.format(T),
-                                                               'Intact_molecules_noomit': '{}'.format(T)})
+        Big_DataframeP = UnnamedBig_DataframeP.rename(columns={'Timestep': 'Timestep_{}'.format(S),
+                                                               'Intact_molecules_noomit': '{}'.format(S)})
         Big_Dataframe = pd.concat([Big_Dataframe, Big_DataframeP], axis=1)
 
     # Using .dropna from pandas library to get rid of rows with NaNa (which mean the simulation ran out of time
