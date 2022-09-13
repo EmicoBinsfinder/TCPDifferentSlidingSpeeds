@@ -15,7 +15,7 @@ import sys
 import statistics
 import glob
 from HelperFunctions import get_intact_columns_constant_pressure
-from HelperFunctions import get_intact_columns_constant_temperature
+from HelperFunctions import get_intact_columns_constant_speed
 from HelperFunctions import get_fitted_plots_constant_temperature
 from HelperFunctions import get_fitted_plots_constant_pressure
 from HelperFunctions import get_MATLABFIT_dissociation_rates

@@ -511,18 +511,36 @@ def get_dissociation_rates(Timestep_List, fitted_functionOneGPa, fitted_function
 
     return Dissociation_rates
 
-def get_MATLABFIT_dissociation_rates(TimestepList, Coefficient):
+def get_MATLABFIT_dissociation_rates(TimestepList, Coefficient, Cutoff=None):
     Time = []
     for x in TimestepList:
         Time.append(((x - 400000) / int(4 * 10 ** 6)))
-    Extrapolation_Constant = 999 / len(Time)
-    FittedCurveValues = []
-    for x in Time:
-        Value = 48 * np.exp(Coefficient*(x))
-        FittedCurveValues.append(Value)
-    UnextrapolatedRate = (np.log(FittedCurveValues[-1] / 48)) / Time[-1]
-    NanosecondRate = Extrapolation_Constant * UnextrapolatedRate * -1
-    LnRate = np.log(NanosecondRate)
+    Value = list(range(0, len(Time)))
+
+    if Cutoff != None:
+        TimeCutoff = []
+        [TimeCutoff.append(Time[x]) for x in Value if Time[x] <= Cutoff]
+        fitted_function = []
+        for x in TimeCutoff:
+            fitted_function.append(48 * np.exp(Coefficient * x))
+
+        ShortIntactMoleculeList = []
+        [ShortIntactMoleculeList.append(fitted_function[x]) for x in Value[:len(TimeCutoff)]]
+        UnextrapolatedRate = (np.log((ShortIntactMoleculeList[-1] / 48))) / TimeCutoff[-1]
+
+        Extrapolation_Constant = 999 / len(TimeCutoff)
+        NanosecondRate = Extrapolation_Constant * (UnextrapolatedRate * -1)
+        LnRate = np.log(NanosecondRate)
+    else:
+        Extrapolation_Constant = 999 / len(Time)
+        FittedCurveValues = []
+        for x in Time:
+            Value = 48 * np.exp(Coefficient*(x))
+            FittedCurveValues.append(Value)
+        print(Time[-1])
+        UnextrapolatedRate = (np.log((FittedCurveValues[-1] / 48))) / Time[-1]
+        NanosecondRate = Extrapolation_Constant * (UnextrapolatedRate * -1)
+        LnRate = np.log(NanosecondRate)
     return NanosecondRate, LnRate
 
 def plot_variation_in_shear_stress_constanttemp(temperature, pressures):
