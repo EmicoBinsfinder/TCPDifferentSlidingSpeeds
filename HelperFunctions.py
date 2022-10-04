@@ -35,7 +35,7 @@ def get_intact_columns_constant_speed(Speed, Pressures):
     """
 
     #Makes a dataframe from the intact molecuels csv of the first speed/temperature/pressure experiment in your defined list
-    All_Dataframe = pd.read_csv('D:/PhD/TCPDecompositionExperiments/Completed/DifferentSlidingSpeeds/1ms/400K/1GPa/'
+    All_Dataframe = pd.read_csv('D:/PhD/TCPDecompositionExperiments/Completed/DifferentSlidingSpeeds/{}/400K/1GPa/'
                                 'processed/Fe2O3-200-iso-octane_IntactMols_0.3'.format(Speed), sep='\t')
 
     #Take the correct columns from the above datafram using iloc
@@ -70,7 +70,7 @@ def get_intact_columns_constant_pressure(Pressure, Speeds):
     """
 
     # Makes a dataframe from the intact molecuels csv of the first speed/temperature/pressure experiment in your defined list
-    All_Dataframe = pd.read_csv('D:/PhD/TCPDecompositionExperiments/Completed/DifferentSlidingSpeeds/1ms/400K/1GPa/'
+    All_Dataframe = pd.read_csv('D:/PhD/TCPDecompositionExperiments/Completed/DifferentSlidingSpeeds/1ms/400K/{}/'
                                 'processed/Fe2O3-200-iso-octane_IntactMols_0.3'.format(Pressure), sep='\t')
 
     # Take the correct columns from the above datafram using iloc
@@ -587,3 +587,136 @@ def plot_variation_in_shear_stress_constanttemp(temperature, pressures):
     ax3.plot(Time, Shear_Stress_5GPa, label='5GPa')
     ax3.legend()
     plt.show()
+
+def plot_shear_stress_vs_normal_stress_different_sliding_speeds(Average_Shear_Stress_List_1, Average_Shear_Stress_List_2,
+                                       Average_Shear_Stress_List_3, Average_Shear_Stress_List_4,
+                                       Average_Shear_Stress_List_5, Average_Shear_Stress_List_6, Speed1, Speed2, Speed3, Speed4, Speed5, Speed6):
+    x = np.array([1, 2, 3, 4, 5])
+    a, b = np.polyfit(x, Average_Shear_Stress_List_1, 1)
+    c, d = np.polyfit(x, Average_Shear_Stress_List_2, 1)
+    e, f = np.polyfit(x, Average_Shear_Stress_List_3, 1)
+    g, h = np.polyfit(x, Average_Shear_Stress_List_4, 1)
+    i, j = np.polyfit(x, Average_Shear_Stress_List_5, 1)
+    k, l = np.polyfit(x, Average_Shear_Stress_List_6, 1)
+
+    fig1, ax2 = plt.subplots()
+    ax2.set_title('Shear Stress vs Normal Stress at Different Sliding Speeds')
+    ax2.set_xlabel('Normal Stress (GPa)')
+    ax2.set_ylabel('Shear Stress (GPa)')
+    ax2.scatter(x, Average_Shear_Stress_List_1)
+    ax2.scatter(x, Average_Shear_Stress_List_2)
+    ax2.scatter(x, Average_Shear_Stress_List_3)
+    ax2.scatter(x, Average_Shear_Stress_List_4)
+    ax2.scatter(x, Average_Shear_Stress_List_5)
+    ax2.scatter(x, Average_Shear_Stress_List_6)
+    ax2.plot(x, a * x + b, label=Speed1)
+    ax2.plot(x, c * x + d, label=Speed2)
+    ax2.plot(x, e * x + f, label=Speed3)
+    ax2.plot(x, g * x + h, label=Speed4)
+    ax2.plot(x, i * x + j, label=Speed5)
+    ax2.plot(x, k * x + l, label=Speed6)
+    ax2.legend()
+    plt.show()
+
+def plot_variation_in_shear_stress_constant_speed(speed, Pressures):
+    Friction_Coefficient_Dataframe_Unnamed = pd.read_csv(
+        'D:/PhD/TCPDecompositionExperiments/Completed/DifferentSlidingSpeeds/{}/400K/1GPa/'
+        'fc_ave.dump'.format(speed), sep=' ')
+    Friction_Coefficient_Dataframe = Friction_Coefficient_Dataframe_Unnamed.rename(
+        columns={'v_s_bot': 'Shear Stress 1GPa', 'v_p_bot': 'Normal Stress 1GPa'})
+
+    for P in Pressures:
+        Dataframe = pd.read_csv('D:/PhD/TCPDecompositionExperiments/Completed/DifferentSlidingSpeeds/{}/400K/{}/'
+                                'fc_ave.dump'.format(speed, P), sep=' ')
+        Big_DataframeP = Dataframe.rename(columns={'TimeStep': 'Timestep {}'.format(P),
+                                                   'v_s_bot': 'Shear Stress {}'.format(P),
+                                                   'v_p_bot': 'Normal Stress {}'.format(P)})
+
+        Friction_Coefficient_Dataframe = pd.concat([Friction_Coefficient_Dataframe, Big_DataframeP], axis=1)
+        Friction_Coefficient_Dataframe = Friction_Coefficient_Dataframe.dropna()
+
+
+    Timestep = Friction_Coefficient_Dataframe.TimeStep.tolist()
+
+    Shear_Stress_1GPa = Friction_Coefficient_Dataframe['Shear Stress 1GPa'].tolist()
+    Shear_Stress_2GPa = Friction_Coefficient_Dataframe['Shear Stress 2GPa'].tolist()
+    Shear_Stress_3GPa = Friction_Coefficient_Dataframe['Shear Stress 3GPa'].tolist()
+    Shear_Stress_4GPa = Friction_Coefficient_Dataframe['Shear Stress 4GPa'].tolist()
+    Shear_Stress_5GPa = Friction_Coefficient_Dataframe['Shear Stress 5GPa'].tolist()
+
+    Shear_Stress_1GPa = [x / 10000 for x in Shear_Stress_1GPa]
+    Shear_Stress_2GPa = [x / 10000 for x in Shear_Stress_2GPa]
+    Shear_Stress_3GPa = [x / 10000 for x in Shear_Stress_3GPa]
+    Shear_Stress_4GPa = [x / 10000 for x in Shear_Stress_4GPa]
+    Shear_Stress_5GPa = [x / 10000 for x in Shear_Stress_5GPa]
+
+    Time = []
+    for x in Timestep:
+        Time.append(((x - 400000) / int(4 * 10 ** 6)))
+
+    fig3, ax3 = plt.subplots()
+    ax3.set_title('Variation in Shear Stress at {}'.format(speed))
+    ax3.set_xlabel('Time (ns)')
+    ax3.set_ylabel('Shear Stress (GPa)')
+    ax3.plot(Time, Shear_Stress_1GPa, label='1GPa')
+    ax3.plot(Time, Shear_Stress_2GPa, label='2GPa')
+    ax3.plot(Time, Shear_Stress_3GPa, label='3GPa')
+    ax3.plot(Time, Shear_Stress_4GPa, label='4GPa')
+    ax3.plot(Time, Shear_Stress_5GPa, label='5GPa')
+    ax3.legend()
+    plt.show()
+
+
+def get_average_shear_normal_stress_and_average_mu_constant_speed(Speed, Pressures, EquilibriumFactor):
+    Friction_Coefficient_Dataframe_Unnamed = pd.read_csv(
+        'D:/PhD/TCPDecompositionExperiments/Completed/DifferentSlidingSpeeds/{}/400K/1GPa/'
+        'fc_ave.dump'.format(Speed), sep=' ')
+    Friction_Coefficient_Dataframe = Friction_Coefficient_Dataframe_Unnamed.rename(
+        columns={'v_s_bot': 'Shear Stress 1GPa', 'v_p_bot': 'Normal Stress 1GPa'})
+
+    for P in Pressures:
+        Dataframe = pd.read_csv('D:/PhD/TCPDecompositionExperiments/Completed/DifferentSlidingSpeeds/{}/400K/{}/'
+                                'fc_ave.dump'.format(Speed, P), sep=' ')
+        Big_DataframeP = Dataframe.rename(columns={'Timestep': 'Timestep {}'.format(P),
+                                                   'v_s_bot': 'Shear Stress {}'.format(P),
+                                                   'v_p_bot': 'Normal Stress {}'.format(P)})
+
+        Friction_Coefficient_Dataframe = pd.concat([Friction_Coefficient_Dataframe, Big_DataframeP], axis=1)
+        Friction_Coefficient_Dataframe = Friction_Coefficient_Dataframe.dropna()
+
+    # print(Friction_Coefficient_Dataframe)
+    Mu_Final_Dataframe = Friction_Coefficient_Dataframe.iloc[:, [0, 1, 2, 4, 5, 7, 8, 10, 11, 13, 14]]
+    Mu_Final_Dataframe = Mu_Final_Dataframe.iloc[EquilibriumFactor:, :]
+    # print(Mu_Final_Dataframe)
+
+    ShearStressMeans = Mu_Final_Dataframe[
+        ['Shear Stress 1GPa', 'Shear Stress 2GPa', 'Shear Stress 3GPa', 'Shear Stress 4GPa',
+         'Shear Stress 5GPa']].mean()
+    Average_Shear_Stress_Dictionary = ShearStressMeans.to_dict()
+    # print(ShearStressMeans)
+    NormalStressMeans = Mu_Final_Dataframe[
+        ['Normal Stress 1GPa', 'Normal Stress 2GPa', 'Normal Stress 3GPa', 'Normal Stress 4GPa',
+         'Normal Stress 5GPa']].mean()
+    NormalStressMeans = NormalStressMeans.to_dict()
+    # print(NormalStressMeans)
+
+    Average_Mu_Dictionary = {}
+
+    Normal_Stress = NormalStressMeans.get('Normal Stress 1GPa')
+    Shear_Stress = ShearStressMeans.get('Shear Stress 1GPa')
+    Average_Mu = Shear_Stress / Normal_Stress
+    Average_Mu_Dictionary.update({'Average Mu 1GPa': Average_Mu})
+
+    for P in Pressures:
+        Normal_Stress = NormalStressMeans.get('Normal Stress {}'.format(P))
+        Shear_Stress = ShearStressMeans.get('Shear Stress {}'.format(P))
+        Average_Mu = Shear_Stress / Normal_Stress
+        Average_Mu_Dictionary.update({'Average Mu {}'.format(P): Average_Mu})
+
+    Average_Shear_Stress_List = list(Average_Shear_Stress_Dictionary.values())
+    # print(Average_Shear_Stress_List)
+    Average_Mu_List = list(Average_Mu_Dictionary.values())
+    Average_Shear_Stress_List = [x / 10000 for x in Average_Shear_Stress_List]  # Conversion to GPa
+    # print(Average_Shear_Stress_List)
+
+    return Average_Shear_Stress_List, Average_Mu_List, NormalStressMeans
