@@ -21,22 +21,16 @@ import glob
 import sys
 from numpy import mean as m
 
-Speeds = ["1ms", "20ms", "50ms"]
-Pressures = ['3GPa', '4GPa', '5GPa']
-speed = "1ms"
-pressures = ['3GPa', '4GPa', '5GPa']
-
-def get_intact_columns_constant_speed(Speed, Pressures):
-
+def get_intact_columns_constant_temperature_and_speed(Temperature, Pressures, Speed):
     """
     speed: Speed directory that you ran the experiments at
-    :pressures: Different pressures that you ran the experiments at with constant speed
+    pressures: Different pressures that you ran the experiments at with constant speed
     :return: Dataframe with concatenated and renamed columns from each of the experiments at the input pressures and speed
     """
 
     #Makes a dataframe from the intact molecuels csv of the first speed/temperature/pressure experiment in your defined list
-    All_Dataframe = pd.read_csv('D:/PhD/TCPDecompositionExperiments/Completed/DifferentSlidingSpeeds/{}/400K/1GPa/'
-                                'processed/Fe2O3-200-iso-octane_IntactMols_0.3'.format(Speed), sep='\t')
+    All_Dataframe = pd.read_csv('D:/PhD/TCPDecompositionExperiments/Completed/DifferentSlidingSpeeds/{Speed}/{Temperature}/1GPa/'
+                                'processed/Fe2O3-200-iso-octane_IntactMols_0.3'.format(Temperature=Temperature, Speed=Speed), sep='\t')
 
     #Take the correct columns from the above datafram using iloc
     Big_Dataframe_NotProcessed = All_Dataframe.iloc[:, [0, 2]]
@@ -48,8 +42,8 @@ def get_intact_columns_constant_speed(Speed, Pressures):
 
     Pressures = Pressures
     for P in Pressures:
-        Dataframe = pd.read_csv('D:/PhD/TCPDecompositionExperiments/Completed/DifferentSlidingSpeeds/{}/400K/{}/'
-                                'processed/Fe2O3-200-iso-octane_IntactMols_0.3'.format(Speed, P), sep='\t')
+        Dataframe = pd.read_csv('D:/PhD/TCPDecompositionExperiments/Completed/DifferentSlidingSpeeds/{Speed}/{Temperature}/{P}/'
+                                'processed/Fe2O3-200-iso-octane_IntactMols_0.3'.format(Temperature=Temperature, Speed=Speed, P=P), sep='\t')
         UnnamedBig_DataframeP = Dataframe.iloc[:, [0, 2]]
         #print(Big_DataframeP)
         Big_DataframeP = UnnamedBig_DataframeP.rename(columns= {'Timestep' : 'Timestep_{}'.format(P),
@@ -61,7 +55,40 @@ def get_intact_columns_constant_speed(Speed, Pressures):
 
     return Big_Dataframe
 
-def get_intact_columns_constant_pressure(Pressure, Speeds):
+def get_intact_columns_constant_pressure_and_speed(Speed, Pressure, Temperatures):
+
+    """
+    speed: Speed directory that you ran the experiments at
+    :pressures: Different pressures that you ran the experiments at with constant speed
+    :return: Dataframe with concatenated and renamed columns from each of the experiments at the input pressures and speed
+    """
+
+    #Makes a dataframe from the intact molecuels csv of the first speed/temperature/pressure experiment in your defined list
+    All_Dataframe = pd.read_csv('D:/PhD/TCPDecompositionExperiments/Completed/DifferentSlidingSpeeds/{Speed}/400K/{Pressure}/'
+                                'processed/Fe2O3-200-iso-octane_IntactMols_0.3'.format(Speed=Speed, Pressure=Pressure), sep='\t')
+
+    #Take the correct columns from the above datafram using iloc
+    Big_Dataframe_NotProcessed = All_Dataframe.iloc[:, [0, 2]]
+
+    #Rename the column to the pressure of the first experiment
+    Big_Dataframe = Big_Dataframe_NotProcessed.rename(columns={'Intact_molecules_noomit' : '400K'})
+
+    #Quick for loop to get the rest of the columns from the remaining
+
+    for T in Temperatures:
+        Dataframe = pd.read_csv('D:/PhD/TCPDecompositionExperiments/Completed/DifferentSlidingSpeeds/{Speed}/{T}/{Pressure}/'
+                                'processed/Fe2O3-200-iso-octane_IntactMols_0.3'.format(Speed=Speed, T=T, Pressure=Pressure), sep='\t')
+        UnnamedBig_DataframeP = Dataframe.iloc[:, [0, 2]]
+        Big_DataframeP = UnnamedBig_DataframeP.rename(columns= {'Timestep' : 'Timestep_{}'.format(T),
+                                                                'Intact_molecules_noomit' : '{}'.format(T)})
+        Big_Dataframe = pd.concat([Big_Dataframe, Big_DataframeP], axis =1)
+
+    # Using .dropna from pandas library to get rid of rows with NaNa (which mean the simulation ran out of time
+    Big_Dataframe = Big_Dataframe.dropna(axis=0)
+
+    return Big_Dataframe
+
+def get_intact_columns_constant_pressure_and_temperature(Pressure, Speeds, Temperature):
 
     """
     speed: Speed directory that you ran the experiments at
@@ -70,20 +97,20 @@ def get_intact_columns_constant_pressure(Pressure, Speeds):
     """
 
     # Makes a dataframe from the intact molecuels csv of the first speed/temperature/pressure experiment in your defined list
-    All_Dataframe = pd.read_csv('D:/PhD/TCPDecompositionExperiments/Completed/DifferentSlidingSpeeds/1ms/400K/{}/'
-                                'processed/Fe2O3-200-iso-octane_IntactMols_0.3'.format(Pressure), sep='\t')
+    All_Dataframe = pd.read_csv('D:/PhD/TCPDecompositionExperiments/Completed/DifferentSlidingSpeeds/10ms/{Temperature}/{Pressure}/'
+                                'processed/Fe2O3-200-iso-octane_IntactMols_0.3'.format(Pressure=Pressure, Temperature=Temperature), sep='\t')
 
     # Take the correct columns from the above datafram using iloc
     Big_Dataframe_NotProcessed = All_Dataframe.iloc[:, [0, 2]]
 
     # Rename the column to the pressure of the first experiment
-    Big_Dataframe = Big_Dataframe_NotProcessed.rename(columns={'Intact_molecules_noomit': '1ms'})
+    Big_Dataframe = Big_Dataframe_NotProcessed.rename(columns={'Intact_molecules_noomit': '10ms'})
 
     # Quick for loop to get the rest of the columns from the remaining
 
     for S in Speeds:
-        Dataframe = pd.read_csv('D:/PhD/TCPDecompositionExperiments/Completed/DifferentSlidingSpeeds/{}/400K/{}/'
-                                'processed/Fe2O3-200-iso-octane_IntactMols_0.3'.format(S, Pressure), sep='\t')
+        Dataframe = pd.read_csv('D:/PhD/TCPDecompositionExperiments/Completed/DifferentSlidingSpeeds/{S}/{Temperature}/{Pressure}/'
+                                'processed/Fe2O3-200-iso-octane_IntactMols_0.3'.format(S=S, Temperature=Temperature, Pressure=Pressure), sep='\t')
         UnnamedBig_DataframeP = Dataframe.iloc[:, [0, 2]]
         # print(Big_DataframeP)
         Big_DataframeP = UnnamedBig_DataframeP.rename(columns={'Timestep': 'Timestep_{}'.format(S),
@@ -94,232 +121,6 @@ def get_intact_columns_constant_pressure(Pressure, Speeds):
     Big_Dataframe = Big_Dataframe.dropna(axis=0)
 
     return Big_Dataframe
-
-def get_fitted_plots_constant_temperature(BigDataframe, speed, Temperature):
-    MoleculesIntact = BigDataframe
-
-    Timestep_List = MoleculesIntact['Timestep'].to_list()
-    OneGPa = MoleculesIntact['1GPa'].to_list()
-    TwoGPa = MoleculesIntact['2GPa'].to_list()
-    ThreeGPa = MoleculesIntact['3GPa'].to_list()
-    FourGPa = MoleculesIntact['4GPa'].to_list()
-    FiveGPa = MoleculesIntact['5GPa'].to_list()
-
-    # Setting up time variable for plots later on
-    Time = []
-    for x in Timestep_List:
-        Time.append(((x - 400000) / int(4 * 10 ** 6)))
-
-    def monoExp(x, m, t):
-        return m * np.exp(-t * x)
-
-    # perform the fit
-    p0 = (48, .1)  # start with values near those we expect
-    sigma = np.ones(len(Time))
-    sigma[[0]] = 48
-    params1GPa, cv = scipy.optimize.curve_fit(monoExp, Time, OneGPa, p0, sigma=sigma)
-    m, t = params1GPa
-    #print(params1GPa)
-
-    def monoExpOne(x, a, b):
-        return a * np.exp(-b * x)
-
-    # perform the fit
-    p01 = (48, .1)  # start with values near those we expect
-    sigma = np.ones(len(Time))
-    sigma[0] = 48
-    params2GPa, cv = scipy.optimize.curve_fit(monoExpOne, Time, TwoGPa, p01, sigma=sigma)
-    a, b = params2GPa
-    #print(params2GPa)
-
-    def monoExpTwo(x, c, d):
-        return c * np.exp(-d * x)
-
-    # perform the fit
-    p02 = (48, .1)  # start with values near those we expect
-    sigma = np.ones(len(Time))
-    sigma[0] = 48
-    params3GPa, cv = scipy.optimize.curve_fit(monoExpTwo, Time, ThreeGPa, p02, sigma=sigma)
-    c, d = params3GPa
-    #print(params3GPa)
-
-    def monoExpThree(x, e, f):
-        return e * np.exp(-f * x)
-
-    # perform the fit
-    p03 = (48, .1)  # start with values near those we expect
-    sigma = np.ones(len(Time))
-    sigma[0] = 48
-    params4GPa, cv = scipy.optimize.curve_fit(monoExpThree, Time, FourGPa, p03, sigma=sigma)
-    e, f = params4GPa
-    #print(params4GPa)
-
-    def monoExpFour(x, g, h):
-        return g * np.exp(-h * x)
-
-    # perform the fit
-    p03 = (100, 2)  # start with values near those we expect
-    sigma = np.ones(len(Time))
-    sigma[0] = 48
-    params5GPa, cv = scipy.optimize.curve_fit(monoExpFour, Time, FiveGPa, p03, sigma=sigma)
-    g, h = params5GPa
-    #print(params5GPa)
-
-    fitted_functionOneGPa = []
-    fitted_functionTwoGPa = []
-    fitted_functionThreeGPa = []
-    fitted_functionFourGPa = []
-    fitted_functionFiveGPa = []
-
-    for x in Time:
-        fitted_functionOneGPa.append(m * np.exp(-t * x))
-
-    for x in Time:
-        fitted_functionTwoGPa.append(a * np.exp(-b * x))
-
-    for x in Time:
-        fitted_functionThreeGPa.append(c * np.exp(-d * x))
-
-    for x in Time:
-        fitted_functionFourGPa.append(e * np.exp(-f * x))
-
-    for x in Time:
-        fitted_functionFiveGPa.append(g * np.exp(-h * x))
-
-    # plot the results
-    plt.plot(Time, OneGPa, '--', label="1GPa", color='blue')
-    plt.plot(Time, fitted_functionOneGPa, color='blue')
-    plt.plot(Time, TwoGPa, '--', label="2GPa", color='red')
-    plt.plot(Time, fitted_functionTwoGPa, color='red')
-    plt.plot(Time, ThreeGPa, '--', label="3GPa", color='orange')
-    plt.plot(Time, fitted_functionThreeGPa, color='orange')
-    plt.plot(Time, FourGPa, '--', label="4GPa", color='green')
-    plt.plot(Time, fitted_functionFourGPa, color='green')
-    plt.plot(Time, FiveGPa, '--', label="5GPa", color='purple')
-    plt.plot(Time, fitted_functionFiveGPa, color='purple')
-    plt.title("TCP Graphs With Exponential Fits {} at {}".format(Temperature, speed))
-    plt.ylabel('Intact Molecules')
-    plt.legend()
-    plt.xlabel('Time (ns)')
-    plt.savefig('C:/Users/eeo21/Documents/PhD/TCPDecompositionExperiments/Completed/AlphaFe/'
-               'IntactMoleculeComparison_Pressure_{}.png'.format(Temperature))
-    plt.close()
-    #plt.show()
-
-    return Timestep_List, fitted_functionOneGPa, fitted_functionTwoGPa, fitted_functionThreeGPa, fitted_functionFourGPa, fitted_functionFiveGPa
-
-def get_fitted_plots_constant_pressure(BigDataframe, speed, Pressure):
-    MoleculesIntact = BigDataframe
-
-    Timestep_List = MoleculesIntact['Timestep'].to_list()
-    OneGPa = MoleculesIntact['300K'].to_list()
-    TwoGPa = MoleculesIntact['400K'].to_list()
-    ThreeGPa = MoleculesIntact['500K'].to_list()
-    FourGPa = MoleculesIntact['600K'].to_list()
-    FiveGPa = MoleculesIntact['700K'].to_list()
-
-    # Setting up time variable for plots later on
-    Time = []
-    for x in Timestep_List:
-        Time.append(((x - 400000) / int(4 * 10 ** 6)))
-
-    def monoExp(x, m, t):
-        return m * np.exp(-t * x)
-
-    # perform the fit
-    p0 = (48, .1)  # start with values near those we expect
-    sigma = np.ones(len(Time))
-    sigma[[0, -300]] = .2
-    params1GPa, cv = scipy.optimize.curve_fit(monoExp, Time, OneGPa, p0, sigma=sigma)
-    m, t = params1GPa
-    #print(params1GPa)
-
-    def monoExpOne(x, a, b):
-        return a * np.exp(-b * x)
-
-    # perform the fit
-    p01 = (48, .1)  # start with values near those we expect
-    sigma = np.ones(len(Time))
-    sigma[[0, -300]] = .2
-    params2GPa, cv = scipy.optimize.curve_fit(monoExpOne, Time, TwoGPa, p01, sigma=sigma)
-    a, b = params2GPa
-    #print(params2GPa)
-
-    def monoExpTwo(x, c, d):
-        return c * np.exp(-d * x)
-
-    # perform the fit
-    p02 = (48, .1)  # start with values near those we expect
-    sigma = np.ones(len(Time))
-    sigma[[0, -300]] = .4
-    params3GPa, cv = scipy.optimize.curve_fit(monoExpTwo, Time, ThreeGPa, p02, sigma=sigma)
-    c, d = params3GPa
-    #print(params3GPa)
-
-    def monoExpThree(x, e, f):
-        return e * np.exp(-f * x)
-
-    # perform the fit
-    p03 = (48, .1)  # start with values near those we expect
-    sigma = np.ones(len(Time))
-    sigma[[0]] = .8
-    params4GPa, cv = scipy.optimize.curve_fit(monoExpThree, Time, FourGPa, p03, sigma=sigma)
-    e, f = params4GPa
-    #print(params4GPa)
-
-    def monoExpFour(x, g, h):
-        return g * np.exp(-h * x)
-
-    # perform the fit
-    p03 = (100, 2)  # start with values near those we expect
-    sigma = np.ones(len(Time))
-    sigma[[0]] = .3
-    params5GPa, cv = scipy.optimize.curve_fit(monoExpFour, Time, FiveGPa, p03, sigma=sigma)
-    g, h = params5GPa
-    #print(params5GPa)
-
-    fitted_function_300K = []
-    fitted_function_400K = []
-    fitted_function_500K = []
-    fitted_function_600K = []
-    fitted_function_700K = []
-
-    for x in Time:
-        fitted_function_300K.append(m * np.exp(-t * x))
-
-    for x in Time:
-        fitted_function_400K.append(a * np.exp(-b * x))
-
-    for x in Time:
-        fitted_function_500K.append(c * np.exp(-d * x))
-
-    for x in Time:
-        fitted_function_600K.append(e * np.exp(-f * x))
-
-    for x in Time:
-        fitted_function_700K.append(g * np.exp(-h * x))
-
-    # plot the results
-    plt.plot(Time, OneGPa, '--', label="300K", color='blue')
-    plt.plot(Time, fitted_function_300K, color='blue')
-    plt.plot(Time, TwoGPa, '--', label="400K", color='red')
-    plt.plot(Time, fitted_function_400K, color='red')
-    plt.plot(Time, ThreeGPa, '--', label="500K", color='orange')
-    plt.plot(Time, fitted_function_500K, color='orange')
-    plt.plot(Time, FourGPa, '--', label="600K", color='green')
-    plt.plot(Time, fitted_function_600K, color='green')
-    plt.plot(Time, FiveGPa, '--', label="700K", color='purple')
-    plt.plot(Time, fitted_function_700K, color='purple')
-    plt.title("TCP Graphs With Exponential Fits {} at {}".format(Pressure, speed))
-    plt.ylabel('Intact Molecules')
-    plt.legend()
-    plt.xlabel('Time (ns)')
-    plt.savefig('C:/Users/eeo21/Documents/PhD/TCPDecompositionExperiments/Completed/AlphaFe/'
-               'IntactMoleculeComparison_Pressure_{}.png'.format(Pressure))
-    plt.close()
-    #plt.show()
-
-    return Timestep_List , fitted_function_300K, fitted_function_400K, fitted_function_500K, fitted_function_600K, fitted_function_700K
 
 def get_average_shear_normal_stress_and_average_mu_constant_temperature(Temperature, Pressures):
     Friction_Coefficient_Dataframe_Unnamed = pd.read_csv('C:/Users/eeo21/Documents/PhD/TCPDecompositionExperiments/Completed/AlphaFe/{}/1GPa/'
@@ -417,28 +218,25 @@ def get_average_shear_normal_stress_and_average_mu_constant_pressure(Pressure, T
 
     return Average_Shear_Stress_List, Average_Mu_List, NormalStressMeans
 
-def plot_shear_stress_vs_normal_stress(Average_Shear_Stress_List_1, Average_Shear_Stress_List_2, Average_Shear_Stress_List_3, Average_Shear_Stress_List_4, Average_Shear_Stress_List_5, Temp1, Temp2, Temp3, Temp4, Temp5):
+def plot_shear_stress_vs_normal_stress(Average_Shear_Stress_List_1, Average_Shear_Stress_List_2, Average_Shear_Stress_List_3, Average_Shear_Stress_List_4, Temp1, Temp2, Temp3, Temp4, Speed):
     x = np.array([1, 2, 3, 4, 5])
     a, b = np.polyfit(x, Average_Shear_Stress_List_1, 1)
     c, d = np.polyfit(x, Average_Shear_Stress_List_2, 1)
     e, f = np.polyfit(x, Average_Shear_Stress_List_3, 1)
-    g, h = np.polyfit(x, Average_Shear_Stress_List_3, 1)
-    i, j = np.polyfit(x, Average_Shear_Stress_List_3, 1)
+    g, h = np.polyfit(x, Average_Shear_Stress_List_4, 1)
 
     fig1, ax2 = plt.subplots()
-    ax2.set_title('Shear Stress vs Normal Stress at Different Temperatures')
+    ax2.set_title(f'Shear Stress vs Normal Stress at Different Temperatures {Speed}')
     ax2.set_xlabel('Normal Stress (GPa)')
     ax2.set_ylabel('Shear Stress (GPa)')
     ax2.scatter(x, Average_Shear_Stress_List_1)
     ax2.scatter(x, Average_Shear_Stress_List_2)
     ax2.scatter(x, Average_Shear_Stress_List_3)
     ax2.scatter(x, Average_Shear_Stress_List_4)
-    ax2.scatter(x, Average_Shear_Stress_List_5)
     ax2.plot(x, a * x + b, label=Temp1)
     ax2.plot(x, c * x + d, label=Temp2)
     ax2.plot(x, e * x + f, label=Temp3)
     ax2.plot(x, g * x + h, label=Temp4)
-    ax2.plot(x, i * x + j, label=Temp5)
     ax2.legend()
     plt.show()
 
@@ -466,7 +264,6 @@ def plot_variation_in_mu(Average_Mu_List_1, Average_Mu_List_2, Average_Mu_List_3
     ax1.plot(x, i * x + j, label=temp5)
     ax1.legend()
     plt.show()
-
 
 def get_dissociation_rates(Timestep_List, fitted_functionOneGPa, fitted_functionTwoGPa, fitted_functionThreeGPa,
                            fitted_functionFourGPa, fitted_functionFiveGPa, cutoff):
@@ -511,39 +308,39 @@ def get_dissociation_rates(Timestep_List, fitted_functionOneGPa, fitted_function
 
     return Dissociation_rates
 
-def get_MATLABFIT_dissociation_rates(TimestepList, Coefficient, Cutoff=None):
+def get_MATLABFIT_dissociation_rates(TimestepList, Coefficient, Cutoff):
     Time = []
     for x in TimestepList:
         Time.append(((x - 400000) / int(4 * 10 ** 6)))
-    Value = list(range(0, len(Time)))
+    FittedCurveValues = []
+    for x in Time:
+        Value = 48 * np.exp(Coefficient*(x))
+        FittedCurveValues.append(Value)
 
-    if Cutoff != None:
+    NumberList = list(range(0, len(Time)))
+
+    if Cutoff == None:
+        NanosecondRate = Coefficient * -1
+        LnRate = np.log(NanosecondRate)
+
+    else:
         TimeCutoff = []
-        [TimeCutoff.append(Time[x]) for x in Value if Time[x] <= Cutoff]
+        [TimeCutoff.append(Time[x]) for x in NumberList if Time[x] <= Cutoff]
         fitted_function = []
         for x in TimeCutoff:
             fitted_function.append(48 * np.exp(Coefficient * x))
 
         ShortIntactMoleculeList = []
-        [ShortIntactMoleculeList.append(fitted_function[x]) for x in Value[:len(TimeCutoff)]]
+        [ShortIntactMoleculeList.append(fitted_function[x]) for x in NumberList[:len(TimeCutoff)]]
         UnextrapolatedRate = (np.log((ShortIntactMoleculeList[-1] / 48))) / TimeCutoff[-1]
 
-        Extrapolation_Constant = 999 / len(TimeCutoff)
-        NanosecondRate = Extrapolation_Constant * (UnextrapolatedRate * -1)
+        Extrapolation_Constant = 1001 / len(TimeCutoff)
+        NanosecondRate = UnextrapolatedRate * -1 * Extrapolation_Constant
         LnRate = np.log(NanosecondRate)
-    else:
-        Extrapolation_Constant = 999 / len(Time)
-        FittedCurveValues = []
-        for x in Time:
-            Value = 48 * np.exp(Coefficient*(x))
-            FittedCurveValues.append(Value)
-        print(Time[-1])
-        UnextrapolatedRate = (np.log((FittedCurveValues[-1] / 48))) / Time[-1]
-        NanosecondRate = Extrapolation_Constant * (UnextrapolatedRate * -1)
-        LnRate = np.log(NanosecondRate)
+
     return NanosecondRate, LnRate
 
-def plot_variation_in_shear_stress_constanttemp(temperature, pressures):
+def plot_variation_in_shear_stress_constanttemp(temperature, Pressures):
     Friction_Coefficient_Dataframe_Unnamed = pd.read_csv('C:/Users/eeo21/Documents/PhD/TCPDecompositionExperiments/Completed/AlphaFe/{}/1GPa/'
                                 'fc_ave.dump'.format(temperature), sep=' ')
     Friction_Coefficient_Dataframe = Friction_Coefficient_Dataframe_Unnamed.rename(columns={'v_s_bot' : 'Shear Stress 1GPa', 'v_p_bot' : 'Normal Stress 1GPa'})
@@ -666,7 +463,6 @@ def plot_variation_in_shear_stress_constant_speed(speed, Pressures):
     ax3.legend()
     plt.show()
 
-
 def get_average_shear_normal_stress_and_average_mu_constant_speed(Speed, Pressures, EquilibriumFactor):
     Friction_Coefficient_Dataframe_Unnamed = pd.read_csv(
         'D:/PhD/TCPDecompositionExperiments/Completed/DifferentSlidingSpeeds/{}/400K/1GPa/'
@@ -720,3 +516,4 @@ def get_average_shear_normal_stress_and_average_mu_constant_speed(Speed, Pressur
     # print(Average_Shear_Stress_List)
 
     return Average_Shear_Stress_List, Average_Mu_List, NormalStressMeans
+
